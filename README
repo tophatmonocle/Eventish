@@ -1,0 +1,5 @@
+Required modules:
+express
+mongodb
+request
+underscore
