@@ -1,5 +1,10 @@
 Required modules:
 express
 mongodb
-request
 underscore
+
+model:
+{
+	datetime: new Date(),
+	tags: ["some", "list", "of", "tags"]
+}
