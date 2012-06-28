@@ -35,28 +35,24 @@ db.open(function(err) {
 	})
 })
 
-var main_page;
-fs.readFile('./templates/index.html', function(err, html) {
-	if(err) {
-		console.log("cannot load template");
-		process.exit(1);
-	}
-	main_page = html;
-})
-
-
 app.get('/', function(req, res) {
-	res.send(main_page);
+	fs.readFile('./templates/index.html', 'ascii', function(err, html) {
+		if(err) {
+			console.log("cannot load template");
+			process.exit(1);
+		}
+		res.send(html);
+	})
 })
 
-app.get('/script/:filename', function(req, res) {
-	fs.readFile('./scripts/'+req.params.filename, function(err, js) {
+app.get('/scripts/:filename', function(req, res) {
+	fs.readFile('./scripts/'+req.params.filename, 'ascii', function(err, js) {
 		if(err) {
 			res.send("Script not found");
 			return;
 		}
 		res.send(js);
-	}
+	});
 })
 
 app.get('/event', function(req, res) {
