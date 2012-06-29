@@ -19,7 +19,7 @@ var db_settings = {
 
 var subscription_settings = {
 	host: "localhost",
-	port: "28018",
+	port: 28018,
 	timeout: 60*seconds,
 	max_timeout: 2 // timeout periods before being removed
 }
@@ -81,14 +81,16 @@ app.post('/event', function(req,res) {
 		new_event.data = req.body.data;
 	}
 	events.insert(new_event, function(err, result) {
-		console.log(result);
 		res.send(result._id)
-	})
 
-	// get any subscriptions that include one or more of the tags associated with this event
-	// send a message to that subscribed user
-	subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
-		broadcast(subs, new_event);
+		// get any subscriptions that include one or more of the tags associated with this event
+		// send a message to that subscribed user
+		console.log("tags:", req.body.tags);
+		subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
+			subs.toArray(function(err, subs) {
+				broadcast(subs, result[0]);
+			});
+		})
 	})
 });
 
@@ -126,14 +128,27 @@ var subscription_timeout = setInterval(function() {
 var sock = dgram.createSocket("udp4", function(msg, peer) {
 	// incoming messages always contain the list of subscribed tags
 	var msg = JSON.parse(msg);
-	var key = peer.address + ":" + peer.port; // no real way to know who it is apart from their port
-
+	console.log("client subscribed to tags", peer, msg);
 	// update the connection's subscription
-	subscriptions.update({ address: peer.address, port: peer.port }, {$inc: { tags: tags, current: current }}, true, false);
+	subscriptions.update({ address: peer.address, port: peer.port }, {$inc: { tags: msg.tags, current: current }}, true, false, function(err, result) {
+		subscriptions.find(function(err, subs) {
+			subs.toArray(function(err, subs) {
+				console.log(subs.length, "active subs");	
+			});
+		})
+	});
 });
 
+sock.on('listening', function() {
+	console.log('subscription socket listening');
+});
+
+sock.bind(subscription_settings.port, subscription_settings.host);
+
 var broadcast = function(subs, event) {
-	var buffer = JSON.stringify(event);
+	var msg = JSON.stringify(event);
+	var buffer = new Buffer(msg);
+	console.log(subs)
 	_.each(subs, function(sub) {
 		sock.send(buffer, 0, buffer.length, sub.port, sub.host)
 	})
