@@ -5,7 +5,7 @@ underscore
 
 model:
 {
-	datetime: new Date(),
+	timestamp: new Date(),
 	tags: ["some", "list", "of", "tags"],
 	data: { 
 		key1: "val1",
@@ -15,4 +15,35 @@ model:
 
 
 curl:
-curl -i -H "Content-Type: application/json" -X POST -d "tags":"[a,b,c]" http://localhost:3100
+curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["a","b","c"]}'  http://localhost:3100
+
+curl -v -H "Accept: application/json" -H "Content-type: application/json" -X GET -d '{"tags":{"$in":["a","b"]},"timestamp":{"$lt":1341003172986}}'  http://localhost:3100/event
+
+UDP subscription:
+subscribe to new events matching your specified tags
+unsubscribe clients who haven't pinged in a while
+
+UDP eventstream:
+persistent 
+
+map = function () {
+    var x = { a : this.a , _id : this._id };
+    emit("test", { min : x , max : x } )
+}
+
+reduce = function (key, values) {
+    var res = values[0];
+    for ( var i=1; i<values.length; i++ ) {
+        if ( values[i].min.a < res.min.a ) 
+           res.min = values[i].min;
+        if ( values[i].max.a > res.max.a ) 
+           res.max = values[i].max;
+    }
+    return res;
+}
+
+result = db.runCommand({mapreduce : "subscribers",map : map,reduce : reduce,out : "my_max"})
+
+db.things.insert({a:2}); db.things.find().min({a:1})
+"$err" : "no index found for specified keyPattern: {} min: { a: 1.0 } max: {}"
+db.things.find({'a': {$gt: 0}})
