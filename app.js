@@ -53,7 +53,7 @@ db.open(function(err) {
 	})
 })
 
-//EVENTS 
+// EVENTS 
 
 var app = express.createServer();
 app.configure(function() {
@@ -92,7 +92,6 @@ app.post('/event', function(req,res) {
 	})
 });
 
-
 app.get('/', function(req, res) {
 	fs.readFile('./templates/index.html', 'ascii', function(err, html) {
 		if(err) {
@@ -112,6 +111,8 @@ app.get('/scripts/:filename', function(req, res) {
 		res.send(js);
 	});
 })
+
+app.listen(3100);
 
 // SUBSCRIPTIONS
 
@@ -137,5 +138,3 @@ var broadcast = function(subs, event) {
 		sock.send(buffer, 0, buffer.length, sub.port, sub.host)
 	})
 }
-
-app.listen(3100);
