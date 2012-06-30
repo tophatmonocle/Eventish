@@ -75,17 +75,13 @@ app.post('/event', function(req,res) {
 	}
 	new_event = {
 		timestamp: new Date().getTime(),
-		tags: req.body.tags
-	}
-	if(req.body.data) {
-		new_event.data = req.body.data;
+		tags: req.body.tags,
+		data: req.body.data // optional
 	}
 	events.insert(new_event, function(err, result) {
 		res.send(result._id)
-
 		// get any subscriptions that include one or more of the tags associated with this event
 		// send a message to that subscribed user
-		console.log("tags:", req.body.tags);
 		subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
 			subs.toArray(function(err, subs) {
 				broadcast(subs, result[0]);
@@ -128,15 +124,9 @@ var subscription_timeout = setInterval(function() {
 var sock = dgram.createSocket("udp4", function(msg, peer) {
 	// incoming messages always contain the list of subscribed tags
 	var msg = JSON.parse(msg);
-	console.log("client subscribed to tags", peer, msg);
 	// update the connection's subscription
-	subscriptions.update({ address: peer.address, port: peer.port }, {$inc: { tags: msg.tags, current: current }}, true, false, function(err, result) {
-		subscriptions.find(function(err, subs) {
-			subs.toArray(function(err, subs) {
-				console.log(subs.length, "active subs");	
-			});
-		})
-	});
+
+	subscriptions.update({ peer: peer }, { peer: peer, tags: msg.tags }, { upsert: true });
 });
 
 sock.on('listening', function() {
@@ -150,6 +140,6 @@ var broadcast = function(subs, event) {
 	var buffer = new Buffer(msg);
 	console.log(subs)
 	_.each(subs, function(sub) {
-		sock.send(buffer, 0, buffer.length, sub.port, sub.host)
+		sock.send(buffer, 0, buffer.length, sub.peer.port, sub.peer.address)
 	})
 }
