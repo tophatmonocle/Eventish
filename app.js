@@ -1,13 +1,14 @@
 
 var _ = require('underscore');
 var express = require('express');
+var app = express.createServer();
+var io = require('socket.io').listen(app);
 var mongo = require('mongodb');
 var http = require('http');
 var fs = require('fs');
 var Buffer = require('buffer').Buffer;
-var dgram = require('dgram');
 
-var current = 0; // current subscriber generation
+var generation = 0; // generation subscriber generation
 var seconds = 1000; // length of a second
 
 var db_settings = {
@@ -49,13 +50,12 @@ db.open(function(err) {
 		}
 		subscriptions = collection;
 		// reset existing subscriptions
-		subscriptions.update({}, { $inc: {current: current} }, undefined, true); 
+		subscriptions.update({}, { $inc: {generation: generation} }, undefined, true); 
 	})
 })
 
 // EVENTS 
 
-var app = express.createServer();
 app.configure(function() {
 	app.use(express.bodyParser());
 });
@@ -82,11 +82,7 @@ app.post('/event', function(req,res) {
 		res.send(result._id)
 		// get any subscriptions that include one or more of the tags associated with this event
 		// send a message to that subscribed user
-		subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
-			subs.toArray(function(err, subs) {
-				broadcast(subs, result[0]);
-			});
-		})
+		broadcast(result[0])	
 	})
 });
 
@@ -114,32 +110,29 @@ app.listen(3100);
 
 // SUBSCRIPTIONS
 
+io.sockets.on('connection', function(socket) {
+	socket.on('subscribe', function(tags) {
+		subscriptions.update({ socket: socket }, { socket: socket, tags: tags, generation: generation });
+	})
+});
+
+io.sockets.on('message', function(msg, callback) {
+	subscriptions.update({ from: from }, { from: from, tags: msg.tags, generation: generation }, { upsert: true });
+});
+
 var subscription_timeout = setInterval(function() {
 	// remove all stale subscriptions
-	subscriptions.remove({ current: {$lt: current - subscription_settings.max_timeout } });
+	subscriptions.remove({ generation: {$lt: generation - subscription_settings.max_timeout } });
 	// increment the subscription generation
-	current++;
+	generation++;
 }, subscription_settings.timeout)
 
-var sock = dgram.createSocket("udp4", function(msg, peer) {
-	// incoming messages always contain the list of subscribed tags
-	var msg = JSON.parse(msg);
-	// update the connection's subscription
-
-	subscriptions.update({ peer: peer }, { peer: peer, tags: msg.tags }, { upsert: true });
-});
-
-sock.on('listening', function() {
-	console.log('subscription socket listening');
-});
-
-sock.bind(subscription_settings.port, subscription_settings.host);
-
-var broadcast = function(subs, event) {
-	var msg = JSON.stringify(event);
-	var buffer = new Buffer(msg);
-	console.log(subs)
-	_.each(subs, function(sub) {
-		sock.send(buffer, 0, buffer.length, sub.peer.port, sub.peer.address)
+var broadcast = function(event) {
+	subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
+		subs.toArray(function(err, subs) {
+			_.each(subs, function(sub) {
+				sub.socket.emit('event', event);
+			});
+		});
 	})
 }

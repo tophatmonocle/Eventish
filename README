@@ -2,6 +2,7 @@ Required modules:
 express
 mongodb
 underscore
+socket.io
 
 model:
 {
@@ -15,7 +16,7 @@ model:
 
 
 curl:
-curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["a","b","c"]}'  http://localhost:3100
+curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["test","b","c"], "data":{"key":"val"}, "timestamp":1341007714650}'  http://localhost:3100/event
 
 curl -v -H "Accept: application/json" -H "Content-type: application/json" -X GET -d '{"tags":{"$in":["a","b"]},"timestamp":{"$lt":1341003172986}}'  http://localhost:3100/event
 
