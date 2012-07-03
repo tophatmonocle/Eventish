@@ -17,7 +17,12 @@ app.configure(function() {
 });
 
 app.listen(3100);
+
 var io = sio.listen(app)
+
+io.configure(function() {
+	io.set('log level', 1);
+})
 
 app.use('/css', express.static(__dirname + '/css'))
 app.use('/img', express.static(__dirname + '/img'))
@@ -56,6 +61,7 @@ db.open(function(err) {
 		}
 		subscriptions = collection;
 		// reset existing subscriptions
+		subscriptions.remove();
 	})
 })
 
@@ -70,10 +76,12 @@ app.get('/event', function(req, res) {
 });
 
 app.post('/event', function(req,res) {
+	console.log('incoming event!');
 	if(!req.body.tags) {
 		res.send("at least one tag required");
 		return;
 	}
+	console.log('found tags', req.body.tags)
 	new_event = {
 		timestamp: new Date().getTime(),
 		tags: req.body.tags,
@@ -81,6 +89,7 @@ app.post('/event', function(req,res) {
 	}
 	events.insert(new_event, function(err, result) {
 		res.send(result._id)
+		console.log('inserted event', result);
 		// get any subscriptions that include one or more of the tags associated with this event
 		// send a message to that subscribed user
 		broadcast(result[0])	
@@ -97,19 +106,23 @@ var sockets = {}
 
 io.sockets.on('connection', function(socket) {
 	subscriptions[socket.id] = socket;
-	socket.on('tags', function(msg, callback) {
+	socket.on('tags', function(tags, callback) {
+		console.log('updating tags to ', tags)
 		subscriptions.update({ socket_id: socket.id }, { 
 			socket_id: socket.id,
 			// socket:socket,
-			tags: msg.tags,
+			tags: tags,
 		}, { upsert: true });
 	});
 });
 
 var broadcast = function(event) {
+	console.log('broadcasting event', event._id);
 	subscriptions.find({tags: {$in: event.tags}}, function(err, subs) {
+		console.log(subs);
 		subs.toArray(function(err, subs) {
 			_.each(subs, function(sub) {
+				console.log('  to sub', sub)
 				var socket = sockets[sub.socket_id];
 				socket.emit('event', event);
 			});

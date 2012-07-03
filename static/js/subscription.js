@@ -13,6 +13,7 @@ var Subscription = Backbone.Model.extend({
 	socket: function() {
 		// establish a socket connection
 		var socket = io.connect('http://'+SOCKET_SERVER+':'+SOCKET_PORT);
+		socket.on('connect', this.update_tags.bind(this));
 		socket.on('event', function(data) {
 			console.log(data);
 			this.trigger('event', data);
@@ -21,6 +22,7 @@ var Subscription = Backbone.Model.extend({
 	},
 	update_tags: function() {
 		// keep the connection alive
+		console.log('updating tags!');
 		this.get('socket').emit('tags', this.get('tags'));
 	}
 })
