@@ -22,7 +22,6 @@ var io = sio.listen(app)
 app.use('/css', express.static(__dirname + '/css'))
 app.use('/img', express.static(__dirname + '/img'))
 
-var generation = 0; // generation subscriber generation
 var seconds = 1000; // length of a second
 
 var db_settings = {
@@ -30,11 +29,6 @@ var db_settings = {
 	host: "localhost",
 	port: 27017,
 	name: "eventish",
-}
-
-var subscription_settings = {
-	timeout: 60*seconds,
-	max_timeout: 2 // timeout periods before being removed
 }
 
 // DB SETUP
@@ -62,7 +56,6 @@ db.open(function(err) {
 		}
 		subscriptions = collection;
 		// reset existing subscriptions
-		subscriptions.update({}, { $inc: {generation: generation} }, undefined, true); 
 	})
 })
 
@@ -102,16 +95,14 @@ app.get('/', function(req, res) {
 
 io.sockets.on('connection', function(socket) {
 	socket.on('tags', function(msg, callback) {
-		subscriptions.update({ socket: socket }, { socket:socket, tags: msg.tags, generation: generation }, { upsert: true });
+		console.log('tags were updated', msg);
+		subscriptions.update({ socket_id: socket.id }, { 
+			socket_id: socket.id,
+			socket:socket,
+			tags: msg.tags,
+		}, { upsert: true });
 	});
 });
-
-var subscription_timeout = setInterval(function() {
-	// remove all stale subscriptions
-	subscriptions.remove({ generation: {$lt: generation - subscription_settings.max_timeout } });
-	// increment the subscription generation
-	generation++;
-}, subscription_settings.timeout)
 
 var broadcast = function(event) {
 	subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
