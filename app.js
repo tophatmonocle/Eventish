@@ -105,7 +105,7 @@ app.get('/', function(req, res) {
 var sockets = {}
 
 io.sockets.on('connection', function(socket) {
-	subscriptions[socket.id] = socket;
+	sockets[socket.id] = socket;
 	socket.on('tags', function(tags, callback) {
 		console.log('updating tags to ', tags)
 		subscriptions.update({ socket_id: socket.id }, { 
@@ -119,7 +119,7 @@ io.sockets.on('connection', function(socket) {
 var broadcast = function(event) {
 	console.log('broadcasting event', event._id);
 	subscriptions.find({tags: {$in: event.tags}}, function(err, subs) {
-		console.log(subs);
+		console.log(subs.items.length);
 		subs.toArray(function(err, subs) {
 			_.each(subs, function(sub) {
 				console.log('  to sub', sub)

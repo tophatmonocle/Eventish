@@ -17,7 +17,7 @@ var Subscription = Backbone.Model.extend({
 		socket.on('event', function(data) {
 			console.log(data);
 			this.trigger('event', data);
-		})
+		}.bind(this));
 		this.set({ socket: socket });
 	},
 	update_tags: function() {
