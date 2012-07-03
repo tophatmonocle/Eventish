@@ -101,7 +101,7 @@ app.get('/', function(req, res) {
 // SUBSCRIPTIONS
 
 io.sockets.on('connection', function(socket) {
-	socket.on('message', function(msg, callback) {
+	socket.on('tags', function(msg, callback) {
 		subscriptions.update({ socket: socket }, { socket:socket, tags: msg.tags, generation: generation }, { upsert: true });
 	});
 });
