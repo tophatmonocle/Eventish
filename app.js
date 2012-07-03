@@ -93,22 +93,25 @@ app.get('/', function(req, res) {
 
 // SUBSCRIPTIONS
 
+var sockets = {}
+
 io.sockets.on('connection', function(socket) {
+	subscriptions[socket.id] = socket;
 	socket.on('tags', function(msg, callback) {
-		console.log('tags were updated', msg);
 		subscriptions.update({ socket_id: socket.id }, { 
 			socket_id: socket.id,
-			socket:socket,
+			// socket:socket,
 			tags: msg.tags,
 		}, { upsert: true });
 	});
 });
 
 var broadcast = function(event) {
-	subscriptions.find({tags: {$in: req.body.tags}}, function(err, subs) {
+	subscriptions.find({tags: {$in: event.tags}}, function(err, subs) {
 		subs.toArray(function(err, subs) {
 			_.each(subs, function(sub) {
-				sub.socket.emit('event', event);
+				var socket = sockets[sub.socket_id];
+				socket.emit('event', event);
 			});
 		});
 	})
