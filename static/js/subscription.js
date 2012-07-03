@@ -1,6 +1,5 @@
 var SOCKET_SERVER = 'localhost'
 var SOCKET_PORT = 3100
-var HEARTBEAT_INTERVAL = 10*1000; // 10 seconds
 
 var Subscription = Backbone.Model.extend({
 	defaults: {
@@ -9,7 +8,7 @@ var Subscription = Backbone.Model.extend({
 	},
 	initialize: function() {
 		this.socket();
-		this.bind("change:tags", this.heartbeat_func(), this);
+		this.bind("change:tags", this.update_tags(), this);
 	},
 	socket: function() {
 		// establish a socket connection
@@ -19,9 +18,8 @@ var Subscription = Backbone.Model.extend({
 			this.trigger('event', data);
 		})
 		this.set({ socket: socket });
-		this.set({ heartbeat: setInterval(this.heartbeat_func.bind(this), HEARTBEAT_INTERVAL) });
 	},
-	heartbeat_func: function() {
+	update_tags: function() {
 		// keep the connection alive
 		this.get('socket').emit('tags', this.get('tags'));
 	}
