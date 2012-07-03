@@ -1,0 +1,25 @@
+doctype 5
+html
+	head
+		link(href='/css/bootstrap.css', rel='stylesheet')
+		link(href='/css/select2.css', rel='stylesheet')
+		link(href='/css/main.css', rel='stylesheet')
+		script(src='/socket.io/socket.io.js')
+		script(src='/js/lib/jquery.min.js')
+		script(src='/js/lib/select2.min.js')
+		script(src='/js/lib/backbone.min.js')
+		script(src='/js/subscription.js')
+		script(src='/js/main.js')
+	body
+		.navbar
+			.navbar-inner
+				.container
+					a.brand Eventish
+		.container-fluid
+			.row-fluid
+				.span12
+					form.well.form-inline
+						input(placeholder='choose tags')#tags
+			.row-fluid
+				.span12
+					
