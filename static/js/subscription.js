@@ -8,7 +8,7 @@ var Subscription = Backbone.Model.extend({
 	},
 	initialize: function() {
 		this.socket();
-		this.bind("change:tags", this.update_tags(), this);
+		this.bind("change:tags", this.update_tags, this);
 	},
 	socket: function() {
 		// establish a socket connection
