@@ -22,6 +22,8 @@ var io = sio.listen(app)
 
 io.configure(function() {
 	io.set('log level', 1);
+	io.set('reconnection limit', 2000);
+	io.set('max reconnection attempts', Infinity);
 })
 
 app.use('/css', express.static(__dirname + '/css'))

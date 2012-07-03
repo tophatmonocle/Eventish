@@ -2,10 +2,11 @@
 var subscription;
 
 $(document).ready(function() {
-	subscription = new Subscription();
+	var tags = localStorage ? localStorage.getItem('tags').split(',') : [];
+	subscription = new Subscription({ tags: tags });
 	
 	if(localStorage) {
-		$('#tags').val(localStorage.getItem('tags'));
+		$('#tags').val(tags.join(','));
 	}
 	
 	$('#tags').select2({ tags:[] }).bind('change', function() {
