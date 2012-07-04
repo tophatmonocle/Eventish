@@ -23,23 +23,18 @@ io.configure(function() {
 	io.set('max reconnection attempts', Infinity);
 })
 
-app.use('/css', express.static(__dirname + '/css'))
-app.use('/img', express.static(__dirname + '/img'))
-
-var seconds = 1000; // length of a second
-
 var db_settings = {
 	appname: "eventish",
 	host: "localhost",
 	port: 27017,
-	name: "eventish",
+	table: "eventish",
 }
 
 // DB SETUP
 
 var events, subscriptions;
 
-var db = new mongo.Db(db_settings.name, new mongo.Server(db_settings.host, db_settings.port, {}), {});
+var db = new mongo.Db(db_settings.table, new mongo.Server(db_settings.host, db_settings.port, {}), {});
 db.open(function(err) {
 	if(err) {
 		console.log("database error");
