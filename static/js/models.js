@@ -24,4 +24,18 @@ var Subscription = Backbone.Model.extend({
 		console.log('updating tags!');
 		this.get('socket').emit('tags', this.get('tags'));
 	}
+});
+
+var Tag = Backbone.Model.extend({
+	defaults: {
+		name: undefined,
+		active: false,
+	}
+});
+
+var Event = Backbone.Model.extend({
+	defaults: {
+		tags: [],
+		timestamp: undefined,
+	}
 })
