@@ -6,3 +6,11 @@
 	fill: steelblue;
 	stroke: white;
 }
+
+.quiet {
+	color: #CCC;
+}
+
+.loud {
+	color: #F00;
+}

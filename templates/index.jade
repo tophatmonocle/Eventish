@@ -9,6 +9,7 @@ html
 		script(src='/js/lib/select2.min.js')
 		script(src='/js/lib/underscore.min.js')
 		script(src='/js/lib/backbone.min.js')
+		script(src='/js/lib/bootstrap.js')
 		script(src='/js/subscription.js')
 		script(src='/js/main.js')
 	body
@@ -19,10 +20,14 @@ html
 		.container-fluid
 			.row-fluid
 				.span12
-					form.well.form-inline
+					form.well
 						label Event Subscriptions
 						input(placeholder='choose tags')#tags
 			.row-fluid
-				.span12
+				.span2
+					form.well
+						label Highlight Tags
+						#highlight-buttons
+				.span10
 					div#chart
 					

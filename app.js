@@ -79,11 +79,11 @@ app.get('/event', function(req, res) {
 
 app.post('/event', function(req,res) {
 	console.log('incoming event!');
+	console.log(req.body);
 	if(!req.body.tags) {
 		res.send("at least one tag required");
 		return;
 	}
-	console.log('found tags', req.body.tags)
 	new_event = {
 		timestamp: new Date().getTime(),
 		tags: req.body.tags,
@@ -91,7 +91,6 @@ app.post('/event', function(req,res) {
 	}
 	events.insert(new_event, function(err, result) {
 		res.send(result._id)
-		console.log('inserted event', result);
 		// get any subscriptions that include one or more of the tags associated with this event
 		// send a message to that subscribed user
 		broadcast(result[0])	
@@ -119,12 +118,9 @@ io.sockets.on('connection', function(socket) {
 });
 
 var broadcast = function(event) {
-	console.log('broadcasting event', event._id);
 	subscriptions.find({tags: {$in: event.tags}}, function(err, subs) {
-		console.log(subs.items.length);
 		subs.toArray(function(err, subs) {
 			_.each(subs, function(sub) {
-				console.log('  to sub', sub)
 				var socket = sockets[sub.socket_id];
 				socket.emit('event', event);
 			});
