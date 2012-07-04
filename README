@@ -3,27 +3,19 @@ express
 mongodb
 underscore
 socket.io
+jade
 
-model:
-{
-	timestamp: new Date(),
-	tags: ["some", "list", "of", "tags"],
-	data: { 
-		key1: "val1",
-		key2: "val2"
-	}
-}
-
+POST an event with CURL:
 
 curl:
-curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["test","b","c"], "data":{"key":"val"}, "timestamp":1341007714650}'  http://localhost:3100/event
+curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["login","b","c"]'  http://localhost:3100/event
+
+GET events with CURL: (outdated?)
 
 curl -v -H "Accept: application/json" -H "Content-type: application/json" -X GET -d '{"tags":{"$in":["a","b"]},"timestamp":{"$lt":1341003172986}}'  http://localhost:3100/event
 
-UDP subscription:
-subscribe to new events matching your specified tags
-unsubscribe clients who haven't pinged in a while
+post events with socket.io:
+socket.emit('event', { tags: ['tag1', 'tag2'] });
 
-UDP eventstream:
-persistent 
-
+subscribe to events with socket.io:
+socket.emit('tags', ['tag1', 'tag2']);

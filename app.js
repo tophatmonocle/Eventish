@@ -3,9 +3,6 @@ var _ = require('underscore');
 var express = require('express')
 var sio = require('socket.io');
 var mongo = require('mongodb');
-var http = require('http');
-var fs = require('fs');
-var Buffer = require('buffer').Buffer;
 
 var app = express.createServer();
 
