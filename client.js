@@ -10,17 +10,17 @@ var urlReq = require('urlReq')
 // }
 
 for(i=1; i<1000; i++) {
-  urlReq.urlReq('http://localhost:3100/event', {
-      method: 'POST',
-      params:{
-          tags: ['login', 'correct'],
-          data: {
-            iteration: i
-          }
-      }
-  }, function(body, res){
+    urlReq.urlReq('http://localhost:3100/event', {
+        method: 'POST',
+        params:{
+            tags: ['login', 'correct'],
+            data: {
+                iteration: i
+            }
+        }
+    }, function(body, res){
 
-      console.log(body);
+        console.log(body);
 
-  });
+    });
 }
