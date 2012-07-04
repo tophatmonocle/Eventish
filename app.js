@@ -79,27 +79,30 @@ app.get('/event', function(req, res) {
 
 app.post('/event', function(req,res) {
 	console.log('incoming event!');
-	console.log(req.body);
 	if(!req.body.tags) {
 		res.send("at least one tag required");
 		return;
 	}
-	new_event = {
-		timestamp: new Date().getTime(),
-		tags: req.body.tags,
-		data: req.body.data // optional
-	}
-	events.insert(new_event, function(err, result) {
-		res.send(result._id)
-		// get any subscriptions that include one or more of the tags associated with this event
-		// send a message to that subscribed user
-		broadcast(result[0])	
+	createEvent(req.body, function(err, event) {
+		res.send(event._id)
+		broadcast(event)
 	})
 });
 
 app.get('/', function(req, res) {
 	res.render('index', { layout: false });
 });
+
+var createEvent = function(event, cb) {
+	new_event = {
+		timestamp: new Date().getTime(),
+		tags: event.tags,
+		data: event.data // optional
+	}
+	events.insert(new_event, function(err, result) {
+		cb(false, result[0]);
+	})
+}
 
 // SUBSCRIPTIONS
 
@@ -114,6 +117,12 @@ io.sockets.on('connection', function(socket) {
 			// socket:socket,
 			tags: tags,
 		}, { upsert: true });
+	});
+	socket.on('event', function(event, callback) {
+		console.log('got a socket event');
+		createEvent(event, function(err, event) {
+			broadcast(event);
+		});
 	});
 });
 

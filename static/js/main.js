@@ -1,5 +1,5 @@
 
-
+var subscription
 $(document).ready(function() {
 	var tags = [];
 	var highlights = [];
@@ -16,7 +16,7 @@ $(document).ready(function() {
 		$('#highlight').val(highlights.join(','));
 	}
 
-	var subscription = new Subscription({ tags: tags });
+	subscription = new Subscription({ tags: tags });
 	
 	$('#highlight').select2({ tags: tags });
 
