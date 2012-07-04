@@ -18,4 +18,4 @@ post events with socket.io:
 socket.emit('event', { tags: ['tag1', 'tag2'] });
 
 subscribe to events with socket.io:
-socket.emit('tags', ['tag1', 'tag2']);
+socket.emit('subscribe', ['tag1', 'tag2']);
