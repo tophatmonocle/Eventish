@@ -107,8 +107,8 @@ var sockets = {}
 
 io.sockets.on('connection', function(socket) {
 	sockets[socket.id] = socket;
-	socket.on('tags', function(tags, callback) {
-		console.log('updating tags to ', tags)
+	socket.on('subscribe', function(tags, callback) {
+		console.log('updating subscription to ', tags)
 		subscriptions.update({ socket_id: socket.id }, { 
 			socket_id: socket.id,
 			// socket:socket,
