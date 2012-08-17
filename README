@@ -8,7 +8,7 @@ jade
 POST an event with CURL:
 
 curl:
-curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["login","b","c"]'  http://localhost:3100/event
+curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"tags":["login","b","c"]}'  http://localhost:3100/event
 
 GET events with CURL: (outdated?)
 
