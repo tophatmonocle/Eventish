@@ -6,6 +6,28 @@
 (function () {
     "use strict";
     window.EventDetailView = Backbone.View.extend({
-        model: window.Event
+        model: window.Event,
+        tagName: "li",
+        initialize: function (options) {
+            this.template = options.template === undefined ? "" : options.template;
+        },
+        render: function () {
+            this.$el.text(this.model.format(this.template));
+        }
+    });
+
+    window.EventGroupView = Backbone.View.extend({
+        model: window.EventGroup,
+        tagName: "li",
+        template: "<label for='group_<%= cid %>'>Event Group</label><input type='checkbox' id='group_<%= cid %>' /><ol></ol>",
+        initialize: function () {
+            this.cid = _.uniqueId('group_');
+        },
+        render: function () {
+            this.$el.html(_.template(this.template, { cid: this.cid }));
+        },
+        append: function (el) {
+            this.$el.$('ol').append(el);
+        }
     });
 }());
