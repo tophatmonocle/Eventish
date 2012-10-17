@@ -39,6 +39,68 @@ $(document).ready(function() {
     });
 
     subscription.bind('event', newEvent);
+
+    matches_generated = new EventGroup({
+        tag: 'generated',
+        label: '<%= count %> matches generated',
+        detail: '<%= username %>'
+    });
+
+    matches_acknowledged = new EventGroup({
+        tag: 'ack',
+        label: '<%= count %> matches acknowledged by clients',
+        detail: '<%= username %>'
+    });
+
+    matches_complete = new EventGroup({
+        tag: 'complete',
+        label: '<%= count %> matches completed by clients',
+    });
+
+    tournament_events = new NestedGroup({
+        tag: 'tournament',
+        label: 'Tournament',
+    });
+
+    round_group = new NestedGroup({
+        label: 'Round <%= id %>'
+    });
+
+    round_group.get('groups').add([
+        matches_generated,
+        matches_acknowledged,
+        matches_complete
+    ]);
+
+    round_iterator = new EventGroupIterator({
+        key: 'round_num',
+        template: round_group,
+    });
+
+    online_group = new EventGroup({
+        tag: 'online',
+        label: '<%= count %> online',
+        detail: '<%= username %>'
+    });
+
+    tournament_group = new NestedGroup({
+        label: 'Tournament <%= id %>'
+    });
+
+    tournament_group.get('groups').add([
+        online_group,
+        round_iterator
+    ]);
+
+    tournament_iterator = new EventGroupIterator({
+        key: 'tournament_id',
+        template: tournament_group,
+    });
+
+    runTests()
+    tournament_iterator.add(event)
+    tournament_iterator.add(event2)
+
 })
 
 var newEvent = function(event) {
