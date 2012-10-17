@@ -76,8 +76,9 @@
             }
         },
         add: function (event) {
-            this.get('events').add(event);
+            this.get('events').add(event, { silent: true });
             this.set({ count: this.get('events').length });
+            this.get('events').trigger('add', event);
         }
     });
 

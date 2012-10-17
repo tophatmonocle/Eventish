@@ -20,7 +20,7 @@
     window.EventGroupView = Backbone.View.extend({
         model: window.EventGroup,
         tagName: "li",
-        template: "<label for='<%= cid %>'><%= label %></label><input type='checkbox' id='<%= cid %>' /><ol></ol>",
+        template: "<label for='<%= cid %>'></label><input type='checkbox' id='<%= cid %>' /><ol></ol>",
         rendered: false,
         initialize: function () {
             this.cid = _.uniqueId('group_');
@@ -30,11 +30,14 @@
             this.rendered = true;
             this.$el.html(_.template(this.template, {
                 cid: this.cid,
-                label: _.template(this.model.get('label'), this.model.attributes)
             }));
             if (this.model.get('detail')) {
                 this.model.get('events').each(this.append, this);
             }
+            this.set_label();
+        },
+        set_label: function() {
+            this.$('>label').html(_.template(this.model.get('label'), this.model.attributes))
         },
         append: function (event) {
             if (!this.rendered) {
@@ -46,6 +49,7 @@
             });
             event_view.render();
             this.$('>ol').append(event_view.el);
+            this.set_label();
         }
     });
 

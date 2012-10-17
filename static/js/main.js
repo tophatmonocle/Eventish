@@ -47,7 +47,7 @@ $(document).ready(function() {
     });
 
     matches_acknowledged = new EventGroup({
-        tag: 'ack',
+        tag: 'match_ack',
         label: '<%= count %> matches acknowledged',
         detail: '<%= username %>'
     });
@@ -55,6 +55,7 @@ $(document).ready(function() {
     matches_complete = new EventGroup({
         tag: 'complete',
         label: '<%= count %> matches completed',
+        detail: '<%= username %>'
     });
 
     tournament_events = new NestedGroup({
@@ -99,27 +100,6 @@ $(document).ready(function() {
         label: 'Tournaments'
     });
 
-    
-    window.event1 = new window.Event({
-        tags: ['tournament', 'online'],
-        data: {
-            username: 'hughes_student',
-            tournament_id: 'tournament_252352'
-        }
-    });
-    window.event2 = new window.Event({
-        tags: ['tournament', 'generated'],
-        data: {
-            username: 'hughes_student',
-            tournament_id: 'tournament_252352',
-            round_num: 3
-        }
-    });
-
-    tournament_iterator.add(event1)
-    tournament_iterator.add(event2)
-
-    tournament_iterator.add(event2);
     view = new NestedGroupView({ model: tournament_iterator });
     $('#main_tree').append(view.el);
     view.render()
@@ -127,11 +107,13 @@ $(document).ready(function() {
 })
 
 var newEvent = function(event) {
-    var eventEl = $('<div></div>').text(JSON.stringify(event));
-    eventEl.addClass('event');
-    eventEl.attr('tags', event.tags.join(','));
-    $('#chart').prepend(eventEl)
-    highlight(eventEl);
+    // var eventEl = $('<div></div>').text(JSON.stringify(event));
+    // eventEl.addClass('event');
+    // eventEl.attr('tags', event.tags.join(','));
+    // $('#chart').prepend(eventEl)
+    // highlight(eventEl);
+    var event_obj = new Event(event);
+    tournament_iterator.add(event_obj);
 }
 
 var highlight = function(event) {
