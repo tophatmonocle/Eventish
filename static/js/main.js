@@ -97,7 +97,23 @@ $(document).ready(function() {
         template: tournament_group,
     });
 
-    runTests()
+    
+    window.event1 = new window.Event({
+        tags: ['tournament', 'online'],
+        data: {
+            username: 'hughes_student',
+            tournament_id: 'tournament_252352'
+        }
+    });
+    window.event2 = new window.Event({
+        tags: ['tournament', 'generated'],
+        data: {
+            username: 'hughes_student',
+            tournament_id: 'tournament_252352',
+            round_num: 3
+        }
+    });
+
     tournament_iterator.add(event)
     tournament_iterator.add(event2)
 

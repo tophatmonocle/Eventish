@@ -67,10 +67,8 @@
             }
 
             if (_.indexOf(event.get('tags'), tag) >= 0) {
-                console.log("does", event.get('tags'), "match", tag, "? YES" )
                 return true;
             } else {
-                console.log("does", event.get('tags'), "match", tag, "? NO" )
                 return false;
             }
         },
@@ -145,25 +143,4 @@
             return clone;
         }
     });
-
-    window.runTests = function () {
-        window.event = new window.Event({
-            tags: ['tournament', 'online'],
-            data: {
-                username: 'hughes_student',
-                tournament_id: 'tournament_252352'
-            }
-        });
-        window.event2 = new window.Event({
-            tags: ['tournament', 'generated'],
-            data: {
-                username: 'hughes_student',
-                tournament_id: 'tournament_252352',
-                round_num: 3
-            }
-        });
-    }
-
-
-
-})();
+}());
