@@ -71,14 +71,18 @@ app.get('/event', function(req, res) {
 
 app.post('/event', function(req,res) {
     console.log('incoming event!');
-    if(!req.body.tags) {
-        res.send("at least one tag required");
-        return;
+    if(_.isArray(req.body)) {
+        events_data = req.body;
+    } else {
+        events_data = [req.body];
     }
-    createEvent(req.body, function(err, event) {
-        res.send(event._id)
-        broadcast(event)
-    })
+    console.log(events_data.length, "events found")
+    _.each(events_data, function(data) {
+        createEvent(data, function(err, event) {
+            broadcast(event)
+        })
+    });
+    res.send("ok")
 });
 
 app.get('/', function(req, res) {
@@ -91,6 +95,7 @@ var createEvent = function(event, cb) {
         tags: event.tags,
         data: event.data // optional
     }
+    console.log(new_event)
     events.insert(new_event, function(err, result) {
         cb(false, result[0]);
     })
