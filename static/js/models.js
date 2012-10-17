@@ -54,6 +54,9 @@
     });
 
     window.EventGroup = Backbone.Model.extend({
+        defaults: {
+            count: 0
+        },
         initialize: function () {
             this.set({
                 events: new window.EventCollection()
@@ -74,6 +77,7 @@
         },
         add: function (event) {
             this.get('events').add(event);
+            this.set({ count: this.get('events').length });
         }
     });
 
@@ -126,8 +130,7 @@
                         group = new window.NestedGroup();
                     }
                     group.set({
-                        id: key,
-                        label: this.get('label')
+                        id: key
                     });
                     this.get('groups').add(group);
                 }

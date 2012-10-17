@@ -48,13 +48,13 @@ $(document).ready(function() {
 
     matches_acknowledged = new EventGroup({
         tag: 'ack',
-        label: '<%= count %> matches acknowledged by clients',
+        label: '<%= count %> matches acknowledged',
         detail: '<%= username %>'
     });
 
     matches_complete = new EventGroup({
         tag: 'complete',
-        label: '<%= count %> matches completed by clients',
+        label: '<%= count %> matches completed',
     });
 
     tournament_events = new NestedGroup({
@@ -75,6 +75,7 @@ $(document).ready(function() {
     round_iterator = new EventGroupIterator({
         key: 'round_num',
         template: round_group,
+        label: 'Rounds',
     });
 
     online_group = new EventGroup({
@@ -84,7 +85,7 @@ $(document).ready(function() {
     });
 
     tournament_group = new NestedGroup({
-        label: 'Tournament <%= id %>'
+        label: '<%= id %>'
     });
 
     tournament_group.get('groups').add([
@@ -95,6 +96,7 @@ $(document).ready(function() {
     tournament_iterator = new EventGroupIterator({
         key: 'tournament_id',
         template: tournament_group,
+        label: 'Tournaments'
     });
 
     
@@ -114,8 +116,13 @@ $(document).ready(function() {
         }
     });
 
-    tournament_iterator.add(event)
+    tournament_iterator.add(event1)
     tournament_iterator.add(event2)
+
+    tournament_iterator.add(event2);
+    view = new NestedGroupView({ model: tournament_iterator });
+    $('#main_tree').append(view.el);
+    view.render()
 
 })
 

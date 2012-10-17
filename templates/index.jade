@@ -4,6 +4,7 @@ html
         link(href='/css/bootstrap.css', rel='stylesheet')
         link(href='/css/select2.css', rel='stylesheet')
         link(href='/css/main.css', rel='stylesheet')
+        link(href='/css/tree.css', rel='stylesheet')
         script(src='/socket.io/socket.io.js')
         script(src='/js/lib/jquery.min.js')
         script(src='/js/lib/select2.min.js')
@@ -12,6 +13,7 @@ html
         script(src='/js/lib/bootstrap.js')
         script(src='/js/lib/backbone-extensions.js')
         script(src='/js/models.js')
+        script(src='/js/views.js')
         script(src='/js/main.js')
     body
         .navbar
@@ -27,5 +29,6 @@ html
                         label Highlight Tags
                         input(placeholder='highlight tags')#highlight
                 .span9
+                    ol#main_tree.tree
                     div#chart
                     

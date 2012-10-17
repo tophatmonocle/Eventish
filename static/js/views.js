@@ -8,6 +8,7 @@
     window.EventDetailView = Backbone.View.extend({
         model: window.Event,
         tagName: "li",
+        className: 'file',
         initialize: function (options) {
             this.template = options.template === undefined ? "" : options.template;
         },
@@ -19,15 +20,59 @@
     window.EventGroupView = Backbone.View.extend({
         model: window.EventGroup,
         tagName: "li",
-        template: "<label for='group_<%= cid %>'>Event Group</label><input type='checkbox' id='group_<%= cid %>' /><ol></ol>",
+        template: "<label for='<%= cid %>'><%= label %></label><input type='checkbox' id='<%= cid %>' /><ol></ol>",
+        rendered: false,
         initialize: function () {
             this.cid = _.uniqueId('group_');
+            this.model.get('events').bind('add', this.append, this);
         },
         render: function () {
-            this.$el.html(_.template(this.template, { cid: this.cid }));
+            this.rendered = true;
+            this.$el.html(_.template(this.template, {
+                cid: this.cid,
+                label: _.template(this.model.get('label'), this.model.attributes)
+            }));
+            if (this.model.get('detail')) {
+                this.model.get('events').each(this.append, this);
+            }
         },
-        append: function (el) {
-            this.$el.$('ol').append(el);
+        append: function (event) {
+            if (!this.rendered) {
+                return;
+            }
+            var event_view = new window.EventDetailView({
+                model: event,
+                template: this.model.get('detail')
+            });
+            event_view.render();
+            this.$('>ol').append(event_view.el);
+        }
+    });
+
+    window.NestedGroupView = window.EventGroupView.extend4000({
+        initialize: function () {
+            var groups = this.model.get('groups');
+            if (groups) {
+                groups.bind('add', this.append_group, this);
+            }
+        },
+        render: function () {
+            window.EventGroupView.prototype.render.apply(this);
+            var groups = this.model.get('groups');
+            if (groups) {
+                this.model.get('groups').each(this.append_group, this);
+            }
+        },
+        append_group: function (group) {
+            if (!this.rendered) {
+                return;
+            }
+
+            var group_view = new window.NestedGroupView({
+                model: group
+            });
+            group_view.render();
+            this.$('>ol').prepend(group_view.el); // group views always go at the top
         }
     });
 }());
