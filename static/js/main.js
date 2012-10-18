@@ -91,7 +91,8 @@ $(document).ready(function() {
 
     tournament_group.get('groups').add([
         online_group,
-        round_iterator
+        round_iterator,
+
     ]);
 
     tournament_iterator = new EventGroupIterator({
@@ -104,6 +105,16 @@ $(document).ready(function() {
     $('#main_tree').append(view.el);
     view.render()
 
+    error_group = new EventGroup({
+        tag: 'error',
+        label: '<%= count %> errors logged',
+        detail: '<%= status %>: <%= error %>! <%= message %> (<%= username %>)'
+    });
+
+    error_view = new EventGroupView({ model: error_group })
+    $('#error_tree').append(error_view.el);
+    error_view.render();
+    error_event = new Event({"timestamp":1350582340605,"tags":["error"],"data":{"error": "xhr:", "status":500,"username":"anonymous_KWiXNH","message":"NameError at /epublisher/\nglobal name 'asdfasdfadsfadsf' is not defined\n\nRequest Method: POST\nReques"},"_id":"5080404469190980480000f0"})
 })
 
 var newEvent = function(event) {
@@ -112,8 +123,9 @@ var newEvent = function(event) {
     // eventEl.attr('tags', event.tags.join(','));
     // $('#chart').prepend(eventEl)
     // highlight(eventEl);
-    var event_obj = new Event(event);
+    // var event_obj = new Event(event);
     tournament_iterator.add(event_obj);
+    error_group.add(event_obj);
 }
 
 var highlight = function(event) {
