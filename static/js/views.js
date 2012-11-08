@@ -13,7 +13,7 @@
             this.template = options.template === undefined ? "" : options.template;
         },
         render: function () {
-            this.$el.text(this.model.format(this.template));
+            this.$el.html(this.model.format(this.template));
         }
     });
 

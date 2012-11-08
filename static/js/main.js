@@ -106,9 +106,9 @@ $(document).ready(function() {
     view.render()
 
     error_group = new EventGroup({
-        tag: 'error',
+        tag: 'ajaxError',
         label: '<%= count %> errors logged',
-        detail: '<%= status %>: <%= error %>! <%= message %> (<%= username %>)'
+        detail: '<span class="error_code"><%= status %></span><span class="error_url"><%= url %></span><span class="error_details"><%= username %> <%= date %></span><div class="error_data"><%= decodeURIComponent(data).substring(5) %></div>'
     });
 
     error_view = new EventGroupView({ model: error_group })
@@ -123,7 +123,7 @@ var newEvent = function(event) {
     // eventEl.attr('tags', event.tags.join(','));
     // $('#chart').prepend(eventEl)
     // highlight(eventEl);
-    // var event_obj = new Event(event);
+    var event_obj = new Event(event);
     tournament_iterator.add(event_obj);
     error_group.add(event_obj);
 }
