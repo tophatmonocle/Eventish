@@ -108,7 +108,7 @@ $(document).ready(function() {
     error_group = new EventGroup({
         tag: 'ajaxError',
         label: '<%= count %> errors logged',
-        detail: '<span class="error_code"><%= status %></span><span class="error_url"><%= url %></span><span class="error_details"><%= username %> <%= date %></span><div class="error_data"><%= decodeURIComponent(data).substring(5) %></div>'
+        detail: '<span class="error_code"><%= status %></span><span class="error_url"><%= url %></span><span class="error_details"><%= username %> <%= date %></span><% if (typeof(data) != "undefined") { %><div class="error_data"><%= decodeURIComponent(data).substring(5) %><% } %></div>'
     });
 
     error_view = new EventGroupView({ model: error_group })
