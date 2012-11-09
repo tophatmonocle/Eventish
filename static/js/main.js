@@ -124,7 +124,7 @@ var newEvent = function (event) {
     // $('#chart').prepend(eventEl)
     // highlight(eventEl);
     var event_obj = new Event(event);
-    if (event_obj.tags[0] == 'ajaxError') {
+    if (event_obj.get('tags')[0] == 'ajaxError') {
         error_group.add(event_obj);
     } else {
         tournament_iterator.add(event_obj);
