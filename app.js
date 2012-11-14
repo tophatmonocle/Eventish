@@ -62,7 +62,8 @@ db.open(function(err) {
 // EVENTS 
 
 app.get('/event', function(req, res) {
-    events.find(req.body, function(err, cursor) {
+    console.log(req.query)
+    events.find({'data.status':404}, {limit: 10}, function(err, cursor) {
         cursor.toArray(function(err, result) {
             res.send(result)
         })
