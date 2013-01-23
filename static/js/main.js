@@ -118,17 +118,17 @@ $(document).ready(function () {
 })
 
 var newEvent = function (event) {
-    // var eventEl = $('<div></div>').text(JSON.stringify(event));
-    // eventEl.addClass('event');
-    // eventEl.attr('tags', event.tags.join(','));
-    // $('#chart').prepend(eventEl)
-    // highlight(eventEl);
-    var event_obj = new Event(event);
-    if (event_obj.get('tags')[0] == 'ajaxError') {
-        error_group.add(event_obj);
-    } else {
-        tournament_iterator.add(event_obj);
-    }
+    var eventEl = $('<div></div>').text(JSON.stringify(event));
+    eventEl.addClass('event');
+    eventEl.attr('tags', event.tags.join(','));
+    $('#chart').prepend(eventEl)
+    highlight(eventEl);
+    // var event_obj = new Event(event);
+    // if (event_obj.get('tags')[0] == 'ajaxError') {
+    //     error_group.add(event_obj);
+    // } else {
+    //     tournament_iterator.add(event_obj);
+    // }
 }
 
 var highlight = function (event) {

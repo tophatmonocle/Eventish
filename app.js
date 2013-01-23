@@ -75,20 +75,12 @@ app.post('/event', function(req,res) {
     } else {
         events_data = [req.body];
     }
-<<<<<<< HEAD
-    console.log(events_data.length, "events found")
     _.each(events_data, function(data) {
         createEvent(data, function(err, event) {
             broadcast(event)
         })
     });
-    res.send("ok")
-=======
-    createEvent(req.body, function(err, event) {
-        res.send(event._id, 201)
-        broadcast(event)
-    })
->>>>>>> bc40d30... updated requirements, tidied up js
+    res.send("", 201)
 });
 
 app.get('/', function(req, res) {
