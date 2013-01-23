@@ -59,11 +59,9 @@ db.open(function(err) {
     })
 })
 
-// EVENTS 
-
+// EVENTS
 app.get('/event', function(req, res) {
-    console.log(req.query)
-    events.find({'data.status':404}, {limit: 10}, function(err, cursor) {
+    events.find({}, function(err, cursor) {
         cursor.toArray(function(err, result) {
             res.send(result)
         })
@@ -77,6 +75,7 @@ app.post('/event', function(req,res) {
     } else {
         events_data = [req.body];
     }
+<<<<<<< HEAD
     console.log(events_data.length, "events found")
     _.each(events_data, function(data) {
         createEvent(data, function(err, event) {
@@ -84,6 +83,12 @@ app.post('/event', function(req,res) {
         })
     });
     res.send("ok")
+=======
+    createEvent(req.body, function(err, event) {
+        res.send(event._id, 201)
+        broadcast(event)
+    })
+>>>>>>> bc40d30... updated requirements, tidied up js
 });
 
 app.get('/', function(req, res) {
@@ -110,7 +115,7 @@ io.sockets.on('connection', function(socket) {
     sockets[socket.id] = socket;
     socket.on('subscribe', function(tags, callback) {
         console.log('updating subscription to ', tags)
-        subscriptions.update({ socket_id: socket.id }, { 
+        subscriptions.update({ socket_id: socket.id }, {
             socket_id: socket.id,
             // socket:socket,
             tags: tags,

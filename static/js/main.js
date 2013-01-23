@@ -17,7 +17,7 @@ $(document).ready(function () {
     }
 
     subscription = new Subscription({ tags: tags });
-    
+
     $('#highlight').select2({ tags: tags });
 
     $('#tags').select2({ tags:[] }).bind('change', function() {
@@ -133,13 +133,15 @@ var newEvent = function (event) {
 
 var highlight = function (event) {
     var eventTags = $(event).attr('tags').split(',');
-    var highlightedTags = $('#highlight').val().split(',');
+    var highlightedTags = $('#highlight').val();
 
     $(event).removeClass('quiet').removeClass('loud');
-    
-    if (highlightedTags.length == 0) { 
+
+    if (highlightedTags.length == 0) {
         return;
     }
+
+    highlightedTags = highlightedTags.split(',');
 
     // if none of the highlighted tags are present, add the 'quiet' class
     // if all of the highlighted tags are present, add the 'loud' class
