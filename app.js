@@ -104,6 +104,10 @@ app.get('/', function(req, res) {
     res.render('index', { layout: false });
 });
 
+app.get('/report', function(req, res) {
+	res.render('report', {layout: false});
+})
+
 var createEvent = function(event, cb) {
     new_event = {
         timestamp: new Date().getTime(),
