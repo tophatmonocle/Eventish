@@ -167,7 +167,8 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 				return memory
 			}, [])
 			
-			chart(chartContainer, counts)
+			if (data.length > 0) chart(chartContainer, counts)
+			else $("<p>No events with that tag were found within the last 24 hours</p>").appendTo(chartContainer)
 			
 			function chart(container, data) {
 				var width = 400
