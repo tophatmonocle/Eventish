@@ -62,14 +62,31 @@ db.open(function(err) {
 })
 
 // EVENTS 
-
-app.get('/event', function(req, res) {
-    events.find(req.body, function(err, cursor) {
-        cursor.toArray(function(err, result) {
-            res.send(result)
-        })
-    })
-});
+var filterMiddleware = function(next) {
+	var isValidDate = function(timestamp) {return (new Date(parseInt(timestamp))).getTime() > 0}
+	return function(req, res) {
+		var data = req.method == "POST" ? req.body : req.query
+		var options = {}
+		if ("start_date" in data || "end_date" in data) {
+			options.timestamp = {}
+			if (isValidDate(data.start_date)) options.timestamp.$gte = parseInt(data.start_date)
+			if (isValidDate(data.end_date)) options.timestamp.$lte = parseInt(data.end_date)
+		}
+		if (data.tags instanceof Array && data.tags.length > 0) {
+			options.tags = {$all: data.tags}
+		}
+		
+		events.find(options, function(err, cursor) {
+			cursor.limit(1000).toArray(function(err, result) {
+				res.header("X-Result-Count", result.length)
+				res.result = result
+				next(req, res)
+			})
+		})
+	}
+}
+app.head('/event', filterMiddleware(function(req, res) {res.send("")}))
+app.get('/event', filterMiddleware(function(req, res) {res.send(res.result)}));
 
 app.post('/event', function(req,res) {
     console.log('incoming event!');
