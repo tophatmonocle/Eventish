@@ -1,10 +1,12 @@
 
 var _ = require('underscore');
-var express = require('express')
+var express = require('express');
 var sio = require('socket.io');
 var mongo = require('mongodb');
+var http = require('http');
 
-var app = express.createServer();
+var app = express();
+var server = http.createServer(app);
 
 app.configure(function() {
     app.use(express.bodyParser());
@@ -13,9 +15,9 @@ app.configure(function() {
     app.set('view engine', 'jade');
 });
 
-app.listen(3100);
+server.listen(3100);
 
-var io = sio.listen(app)
+var io = sio.listen(server)
 
 io.configure(function() {
     io.set('log level', 1);
