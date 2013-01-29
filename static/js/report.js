@@ -186,8 +186,11 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 			var x = d3.scale.linear()
 				.domain([0, d3.max(data)])
 				.range([0, width])
-			var day = 60 * 60 * 1000
-			var format = d3.time.format("%m/%d %H:%M")
+			var hour = 3600000
+			var labels = d3.time.scale()
+				.domain([yesterday, yesterday + hour * 25])
+				.ticks(d3.time.hours)
+				.map(d3.time.format("%m/%d %H:%M"))
 			chart.selectAll("rect")
 				.data(data)
 				.enter().append("rect")
@@ -204,7 +207,7 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 					.attr("dy", ".35em")
 					.text(String)
 			chart.selectAll(".label")
-				.data(data.concat(null))
+				.data(labels)
 				.enter().append("text")
 					.attr("class", "value")
 					.attr("x", -5)
@@ -212,7 +215,7 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 					.attr("dx", "-.35em")
 					.attr("dy", ".35em")
 					.attr("text-anchor", "end")
-					.text(function(d, i) {return format(new Date(yesterday + i * day))})
+					.text(function(d, i) {return d})
 		}
 		function escape(text) {return $("<div></div>").text(text).html()}
 	}
