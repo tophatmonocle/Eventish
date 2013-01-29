@@ -1,5 +1,16 @@
 if (!("MyApp" in window)) MyApp = {}
+if (!("Models" in MyApp)) MyApp.Models = {}
 if (!("Views" in MyApp)) MyApp.Views = {}
+
+MyApp.Models.EventList = Backbone.Collection.extend({
+	url: "/event",
+	fetch: function(params) {
+		return $.ajax(this.url, {type: "GET", data: $.param(params)})
+	},
+	fetchMetadata: function(params) {
+		return $.ajax(this.url, {type: "HEAD", data: $.param(params)})
+	}
+})
 
 MyApp.Views.EventCount = Backbone.View.extend({
 	el: $("#event-count"),
@@ -26,13 +37,13 @@ MyApp.Views.EventCount = Backbone.View.extend({
 		if (tags) params.tags =  tags
 		
 		var table = this.$el.find("#count-report")
-		$.ajax("/event", {type: "HEAD", data: $.param(params), complete: function(xhr) {
-			var startDate = $("#count-start-date").val()
-			var endDate = $("#count-end-date").val()
-			var tags = $("#count-tags").val()
-			var count = xhr.getResponseHeader("X-Result-Count")
-			$("<tr><td>" + startDate + "</td><td>" + endDate + "</td><td>" + tags + "</td><td>" + count + "</td></tr>").appendTo(table)
-		}})
+		
+		var events = new MyApp.Models.EventList()
+		events.fetchMetadata(params)
+			.success(function(data, status, xhr) {
+				var count = xhr.getResponseHeader("X-Result-Count")
+				$("<tr><td>" + startDate + "</td><td>" + endDate + "</td><td>" + tags + "</td><td>" + count + "</td></tr>").appendTo(table)
+			})
 	}
 })
 
@@ -63,19 +74,18 @@ MyApp.Views.EventTimespans = Backbone.View.extend({
 		var table = this.$el.find("#timespans-report")
 		var leadingTimestamp
 		
-		$.ajax("/event", {type: "GET", data: $.param(params), complete: getTrailingEvents})
+		var events = new MyApp.Models.EventList()
+		events.fetch(params).success(getTrailingEvents)
 		
-		function getTrailingEvents(xhr) {
+		function getTrailingEvents(data) {
 			var params = {}
-			var data = $.parseJSON(xhr.responseText)
 			if (data[0]) leadingTimestamp = params.start_date = data[0].timestamp
 			if (data[1]) params.end_date = data[1].timestamp
 			params.tags = $("#timespans-trailing-tag").val().split(",")
-			$.ajax("/event", {type: "GET", data: $.param(params), complete: render})
-		}
-		function render(xhr) {
-			var data = $.parseJSON(xhr.responseText)
 			
+			events.fetch(params).success(renderReport)
+		}
+		function renderReport(data) {
 			var timespans = _(data).map(function(event) {return event.timestamp - leadingTimestamp}).sort()
 			var fastest = timespans[0] || 0
 			var slowest = timespans[timespans.length - 1] || 0
@@ -103,10 +113,11 @@ MyApp.Views.EventDiff = Backbone.View.extend({
 		"click #get-event-diff": "getReport"
 	},
 	getReport: function() {
+		var events = new MyApp.Models.EventList()
 		var tags = $("#diff-tags").val().split(",")
 		var reqs = _(tags).map(function(tag) {
 			var params = {tags: [tag]}
-			return $.ajax("/event", {type: "GET", data: $.param(params)})
+			return events.fetch(params)
 		})
 		var container = this.$el.find("#diff-report")
 		$.when.apply($, reqs).done(function() {
@@ -155,11 +166,11 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 		params.tags = $("#volume-tags").val().split(",")
 		
 		var container = this.$el.find("#volume-report")
-		$.ajax("/event", {type: "GET", data: $.param(params), complete: function(xhr) {
+		var events = new MyApp.Models.EventList()
+		events.fetch(params).success(function(data) {
 			$("<div class='row-fluid'><h4 class='span12'>Tags: " + $("#volume-tags").val() + "</h4></div>").appendTo(container)
 			
 			var chartContainer = $("<div class='row-fluid'></div>").appendTo(container).get(0)
-			var data = $.parseJSON(xhr.responseText)
 			var counts = _(data).reduce(function(memory, event) {
 				var index = new Date(event.timestamp).getHours()
 				if (!memory[index]) memory[index] = 0
@@ -167,49 +178,49 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 				return memory
 			}, [])
 			
-			if (data.length > 0) chart(chartContainer, counts)
+			if (data.length > 0) renderChart(chartContainer, counts)
 			else $("<p>No events with that tag were found within the last 24 hours</p>").appendTo(chartContainer)
-			
-			function chart(container, data) {
-				var width = 400
-				var chart = d3.select(container).append("svg")
-					.attr("class", "chart")
-					.attr("width", width + 100)
-					.attr("height", 20 * data.length + 20)
-					.append("g")
-						.attr("transform", "translate(80,10)")
-				var x = d3.scale.linear()
-					.domain([0, d3.max(data)])
-					.range([0, width])
-				var day = 60 * 60 * 1000
-				var format = d3.time.format("%m/%d %H:%M")
-				chart.selectAll("rect")
-					.data(data)
-					.enter().append("rect")
-						.attr("width", x)
-						.attr("height", 20)
-						.attr("y", function(d, i) {return i * 20})
-				chart.selectAll(".value")
-					.data(data)
-					.enter().append("text")
-						.attr("class", "value")
-						.attr("x", x)
-						.attr("y", function(d, i) {return i * 20 + 10})
-						.attr("dx", ".35em")
-						.attr("dy", ".35em")
-						.text(String)
-				chart.selectAll(".label")
-					.data(data.concat(null))
-					.enter().append("text")
-						.attr("class", "value")
-						.attr("x", -5)
-						.attr("y", function(d, i) {return i * 20})
-						.attr("dx", "-.35em")
-						.attr("dy", ".35em")
-						.attr("text-anchor", "end")
-						.text(function(d, i) {return format(new Date(yesterday + i * day))})
-			}
-		}})
+		})
+		
+		function renderChart(container, data) {
+			var width = 400
+			var chart = d3.select(container).append("svg")
+				.attr("class", "chart")
+				.attr("width", width + 100)
+				.attr("height", 20 * data.length + 20)
+				.append("g")
+					.attr("transform", "translate(80,10)")
+			var x = d3.scale.linear()
+				.domain([0, d3.max(data)])
+				.range([0, width])
+			var day = 60 * 60 * 1000
+			var format = d3.time.format("%m/%d %H:%M")
+			chart.selectAll("rect")
+				.data(data)
+				.enter().append("rect")
+					.attr("width", x)
+					.attr("height", 20)
+					.attr("y", function(d, i) {return i * 20})
+			chart.selectAll(".value")
+				.data(data)
+				.enter().append("text")
+					.attr("class", "value")
+					.attr("x", x)
+					.attr("y", function(d, i) {return i * 20 + 10})
+					.attr("dx", ".35em")
+					.attr("dy", ".35em")
+					.text(String)
+			chart.selectAll(".label")
+				.data(data.concat(null))
+				.enter().append("text")
+					.attr("class", "value")
+					.attr("x", -5)
+					.attr("y", function(d, i) {return i * 20})
+					.attr("dx", "-.35em")
+					.attr("dy", ".35em")
+					.attr("text-anchor", "end")
+					.text(function(d, i) {return format(new Date(yesterday + i * day))})
+		}
 	}
 })
 
