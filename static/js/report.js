@@ -42,8 +42,9 @@ MyApp.Views.EventCount = Backbone.View.extend({
 		events.fetchMetadata(params)
 			.success(function(data, status, xhr) {
 				var count = xhr.getResponseHeader("X-Result-Count")
-				$("<tr><td>" + startDate + "</td><td>" + endDate + "</td><td>" + tags + "</td><td>" + count + "</td></tr>").appendTo(table)
+				$("<tr><td>" + escape(startDate) + "</td><td>" + escape(endDate) + "</td><td>" + escape(tags) + "</td><td>" + escape(count) + "</td></tr>").appendTo(table)
 			})
+		function escape(text) {return $("<div></div>").text(text).html()}
 	}
 })
 
@@ -128,7 +129,7 @@ MyApp.Views.EventDiff = Backbone.View.extend({
 				var data = arg[0]
 				var tag = tags[i]
 				
-				$("<h4 class='span2'></h4>").appendTo(headerContainer).html("Tagged: " + tag)
+				$("<h4 class='span2'></h4>").appendTo(headerContainer).text("Tagged: " + tag)
 				var listContainer = $("<div class='span2'></div>").appendTo(dataContainer)
 				var list = $("<ul></ul>").appendTo(listContainer)
 				var blacklist = _(tags).without(tag)
@@ -136,7 +137,7 @@ MyApp.Views.EventDiff = Backbone.View.extend({
 					return _(blacklist).intersection(event.tags).length == 0
 				})
 				_(filtered).each(function(event) {
-					if (event.data && event.data.user) $("<li>" + event.data.user + "</li>").appendTo(list)
+					if (event.data && event.data.user) $("<li></li>").appendTo(list).text(event.data.user)
 				})
 			})
 		})
@@ -168,7 +169,7 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 		var container = this.$el.find("#volume-report")
 		var events = new MyApp.Models.EventList()
 		events.fetch(params).success(function(data) {
-			$("<div class='row-fluid'><h4 class='span12'>Tags: " + $("#volume-tags").val() + "</h4></div>").appendTo(container)
+			$("<div class='row-fluid'><h4 class='span12'>Tags: " + escape($("#volume-tags").val()) + "</h4></div>").appendTo(container)
 			
 			var chartContainer = $("<div class='row-fluid'></div>").appendTo(container).get(0)
 			var counts = _(data).reduce(function(memory, event) {
@@ -221,6 +222,7 @@ MyApp.Views.EventVolume = Backbone.View.extend({
 					.attr("text-anchor", "end")
 					.text(function(d, i) {return format(new Date(yesterday + i * day))})
 		}
+		function escape(text) {return $("<div></div>").text(text).html()}
 	}
 })
 
