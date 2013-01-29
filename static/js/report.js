@@ -15,8 +15,6 @@ MyApp.Models.EventList = Backbone.Collection.extend({
 MyApp.Views.EventCount = Backbone.View.extend({
 	el: $("#event-count"),
 	initialize: function() {
-		_.bindAll(this, "getReport")
-		
 		$("#count-start-date,#count-end-date").datepicker()
 		$("#count-tags").select2({tags: []}).on("change", function() {
 			var self = $(this)
@@ -51,8 +49,6 @@ MyApp.Views.EventCount = Backbone.View.extend({
 MyApp.Views.EventTimespans = Backbone.View.extend({
 	el: $("#event-timespans"),
 	initialize: function() {
-		_.bindAll(this, "getReport")
-		
 		$("#timespans-start-date,#timespans-end-date").datepicker()
 		$("#timespans-leading-tag,#timespans-trailing-tag").select2({tags: []}).on("change", function() {
 			var self = $(this)
@@ -103,8 +99,6 @@ MyApp.Views.EventTimespans = Backbone.View.extend({
 MyApp.Views.EventDiff = Backbone.View.extend({
 	el: $("#event-diff"),
 	initialize: function() {
-		_.bindAll(this, "getReport")
-		
 		$("#diff-tags").select2({tags: []}).on("change", function() {
 			var self = $(this)
 			self.select2({tags: self.val().split(",")})
@@ -147,8 +141,6 @@ MyApp.Views.EventDiff = Backbone.View.extend({
 MyApp.Views.EventVolume = Backbone.View.extend({
 	el: $("#event-volume"),
 	initialize: function() {
-		_.bindAll(this, "getReport")
-		
 		$("#volume-tags").select2({tags: []}).on("change", function() {
 			var self = $(this)
 			self.select2({tags: self.val().split(",")})
