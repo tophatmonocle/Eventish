@@ -14,3 +14,24 @@
 .loud {
 	color: #F00;
 }
+
+.error_url {
+    white-space: nowrap;
+}
+
+.error_code {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.error_details {
+    display: block;
+    color: #999;
+    font-style: italic;
+}
+
+.error_data {
+    font-size: 11px;
+    font-family: courier;
+    padding-bottom: 10px;
+}

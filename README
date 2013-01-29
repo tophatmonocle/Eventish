@@ -1,9 +1,4 @@
-Required modules:
-express
-mongodb
-underscore
-socket.io
-jade
+TODO: update readme
 
 POST an event with CURL:
 

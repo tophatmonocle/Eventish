@@ -59,10 +59,9 @@ db.open(function(err) {
     })
 })
 
-// EVENTS 
-
+// EVENTS
 app.get('/event', function(req, res) {
-    events.find(req.body, function(err, cursor) {
+    events.find({}, function(err, cursor) {
         cursor.toArray(function(err, result) {
             res.send(result)
         })
@@ -71,14 +70,17 @@ app.get('/event', function(req, res) {
 
 app.post('/event', function(req,res) {
     console.log('incoming event!');
-    if(!req.body.tags) {
-        res.send("at least one tag required");
-        return;
+    if(_.isArray(req.body)) {
+        events_data = req.body;
+    } else {
+        events_data = [req.body];
     }
-    createEvent(req.body, function(err, event) {
-        res.send(event._id)
-        broadcast(event)
-    })
+    _.each(events_data, function(data) {
+        createEvent(data, function(err, event) {
+            broadcast(event)
+        })
+    });
+    res.send("", 201)
 });
 
 app.get('/', function(req, res) {
@@ -91,6 +93,7 @@ var createEvent = function(event, cb) {
         tags: event.tags,
         data: event.data // optional
     }
+    console.log(new_event)
     events.insert(new_event, function(err, result) {
         cb(false, result[0]);
     })
@@ -104,7 +107,7 @@ io.sockets.on('connection', function(socket) {
     sockets[socket.id] = socket;
     socket.on('subscribe', function(tags, callback) {
         console.log('updating subscription to ', tags)
-        subscriptions.update({ socket_id: socket.id }, { 
+        subscriptions.update({ socket_id: socket.id }, {
             socket_id: socket.id,
             // socket:socket,
             tags: tags,
