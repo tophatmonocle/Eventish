@@ -1,10 +1,12 @@
 
 var _ = require('underscore');
-var express = require('express')
+var express = require('express');
 var sio = require('socket.io');
 var mongo = require('mongodb');
+var http = require('http');
 
-var app = express.createServer();
+var app = express();
+var server = http.createServer(app);
 
 app.configure(function() {
     app.use(express.bodyParser());
@@ -13,9 +15,9 @@ app.configure(function() {
     app.set('view engine', 'jade');
 });
 
-app.listen(3100);
+server.listen(3100);
 
-var io = sio.listen(app)
+var io = sio.listen(server)
 
 io.configure(function() {
     io.set('log level', 1);
@@ -60,14 +62,31 @@ db.open(function(err) {
 })
 
 // EVENTS 
-
-app.get('/event', function(req, res) {
-    events.find(req.body, function(err, cursor) {
-        cursor.toArray(function(err, result) {
-            res.send(result)
-        })
-    })
-});
+var filterMiddleware = function(next) {
+	var isValidDate = function(timestamp) {return (new Date(parseInt(timestamp))).getTime() > 0}
+	return function(req, res) {
+		var data = req.method == "POST" ? req.body : req.query
+		var options = {}
+		if ("start_date" in data || "end_date" in data) {
+			options.timestamp = {}
+			if (isValidDate(data.start_date)) options.timestamp.$gte = parseInt(data.start_date)
+			if (isValidDate(data.end_date)) options.timestamp.$lte = parseInt(data.end_date)
+		}
+		if (data.tags instanceof Array && data.tags.length > 0) {
+			options.tags = {$all: data.tags}
+		}
+		
+		events.find(options, function(err, cursor) {
+			cursor.limit(1000).toArray(function(err, result) {
+				res.header("X-Result-Count", result.length)
+				res.result = result
+				next(req, res)
+			})
+		})
+	}
+}
+app.head('/event', filterMiddleware(function(req, res) {res.send("")}))
+app.get('/event', filterMiddleware(function(req, res) {res.send(res.result)}));
 
 app.post('/event', function(req,res) {
     console.log('incoming event!');
@@ -84,6 +103,10 @@ app.post('/event', function(req,res) {
 app.get('/', function(req, res) {
     res.render('index', { layout: false });
 });
+
+app.get('/report', function(req, res) {
+	res.render('report', {layout: false});
+})
 
 var createEvent = function(event, cb) {
     new_event = {

@@ -1,0 +1,95 @@
+doctype 5
+html
+	head
+		link(href='/css/bootstrap.css', rel='stylesheet')
+		link(href='/css/select2.css', rel='stylesheet')
+		link(href='/css/datepicker.css', rel='stylesheet')
+		link(href='/css/chart.css', rel='stylesheet')
+	body
+		#mainExample
+		.navbar
+			.navbar-inner
+				.container
+					a.brand Reports
+		.container-fluid
+			.row-fluid
+				h3 Event Count
+			.row-fluid#event-count
+				.span3
+					form.well
+						label Start Date
+						input(type='text')#count-start-date
+						label End Date
+						input(type='text')#count-end-date
+						label Tags
+						input(type='text')#count-tags
+						br
+						br
+						button(type='button').btn#get-event-count Get Event Count
+				.span9
+					table.table#count-report
+						tr
+							th Start Date
+							th End Date
+							th Tags
+							th Event Count
+			.row-fluid
+				h3 Event Timespans
+			.row-fluid#event-timespans
+				.span3
+					form.well
+						label Start Date
+						input(type='text')#timespans-start-date
+						label End Date
+						input(type='text')#timespans-end-date
+						label Leading Tag
+						input(type='text')#timespans-leading-tag
+						label Trailing Tag
+						input(type='text')#timespans-trailing-tag
+						br
+						br
+						button(type='button').btn#get-event-timespans Get Event Timespans
+				.span9
+					table.table#timespans-report
+						tr
+							th Fastest
+							th Slowest
+							th Average
+			.row-fluid
+				h3 Event Diff
+			.row-fluid#event-diff
+				.span3
+					form.well
+						label Tags
+						input(type='text')#diff-tags
+						br
+						br
+						button(type='button').btn#get-event-diff Get Event Diff
+				.span9
+					.row-fluid#diff-report
+					
+						
+			.row-fluid
+				h3 Event Volume
+			.row-fluid#event-volume
+				.span3
+					form.well
+						label Tags
+						input(type='text')#volume-tags
+						br
+						br
+						button(type='button').btn#get-event-volume Get Event Volume
+				.span9
+					.row-fluid#volume-report
+					
+							
+		script(src='/js/lib/d3.min.js')
+		script(src='/js/lib/nv.d3.min.js')
+		script(src='/js/lib/jquery.min.js')
+		script(src='/js/lib/select2.min.js')
+		script(src='/js/lib/underscore.min.js')
+		script(src='/js/lib/backbone.min.js')
+		script(src='/js/lib/bootstrap.js')
+		script(src='/js/lib/bootstrap-datepicker.js')
+		script(src='/js/report.js')
+					
