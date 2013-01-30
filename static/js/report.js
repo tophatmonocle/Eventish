@@ -12,14 +12,23 @@ MyApp.Models.EventList = Backbone.Collection.extend({
 	}
 })
 
-MyApp.Views.EventCount = Backbone.View.extend({
-	el: $("#event-count"),
-	initialize: function() {
-		$("#count-start-date,#count-end-date").datepicker()
-		$("#count-tags").select2({tags: []}).on("change", function() {
+MyApp.Views.BaseView = Backbone.View.extend({
+	initDatePicker: function(selector) {
+		$(selector).datepicker()
+	},
+	initTagInput: function(selector) {
+		$(selector).select2({tags: []}).on("change", function() {
 			var self = $(this)
 			self.select2({tags: self.val().split(",")})
 		})
+	}
+})
+
+MyApp.Views.EventCount = MyApp.Views.BaseView.extend({
+	el: $("#event-count"),
+	initialize: function() {
+		this.initDatePicker("#count-start-date,#count-end-date")
+		this.initTagInput("#count-tags")
 	},
 	events: {
 		"click #get-event-count": "getReport"
@@ -46,14 +55,11 @@ MyApp.Views.EventCount = Backbone.View.extend({
 	}
 })
 
-MyApp.Views.EventTimespans = Backbone.View.extend({
+MyApp.Views.EventTimespans = MyApp.Views.BaseView.extend({
 	el: $("#event-timespans"),
 	initialize: function() {
-		$("#timespans-start-date,#timespans-end-date").datepicker()
-		$("#timespans-leading-tag,#timespans-trailing-tag").select2({tags: []}).on("change", function() {
-			var self = $(this)
-			self.select2({tags: self.val().split(",")})
-		})
+		this.initDatePicker("#timespans-start-date,#timespans-end-date")
+		this.initTagInput("#timespans-leading-tag,#timespans-trailing-tag")
 	},
 	events: {
 		"click #get-event-timespans": "getReport"
@@ -96,13 +102,10 @@ MyApp.Views.EventTimespans = Backbone.View.extend({
 	}
 })
 
-MyApp.Views.EventDiff = Backbone.View.extend({
+MyApp.Views.EventDiff = MyApp.Views.BaseView.extend({
 	el: $("#event-diff"),
 	initialize: function() {
-		$("#diff-tags").select2({tags: []}).on("change", function() {
-			var self = $(this)
-			self.select2({tags: self.val().split(",")})
-		})
+		this.initTagInput("#diff-tags")
 	},
 	events: {
 		"click #get-event-diff": "getReport"
@@ -138,13 +141,10 @@ MyApp.Views.EventDiff = Backbone.View.extend({
 	}
 })
 
-MyApp.Views.EventVolume = Backbone.View.extend({
+MyApp.Views.EventVolume = MyApp.Views.BaseView.extend({
 	el: $("#event-volume"),
 	initialize: function() {
-		$("#volume-tags").select2({tags: []}).on("change", function() {
-			var self = $(this)
-			self.select2({tags: self.val().split(",")})
-		})
+		this.initTagInput("#volume-tags")
 	},
 	events: {
 		"click #get-event-volume": "getReport"
